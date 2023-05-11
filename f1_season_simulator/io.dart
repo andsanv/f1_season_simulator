@@ -22,3 +22,17 @@ void write_drivers_to_file(String path) {
 
   sink.close();
 }
+
+
+
+List<String> build_list_from_csv(String path, {int row = 0, int column = 0}) {
+  File file = File(path);
+  List<String> lines = file.readAsLinesSync(), list = [];
+
+  for(int i = row; i < lines.length; i++) {
+    var words = lines[i].split(',');
+    list.add(words[column]);
+  }
+
+  return list;
+}

@@ -14,7 +14,7 @@ const double wet_delta_factor = 2;
 
 
 class Laptime {
-  Driver driver = Driver.Null();
+  Driver driver = Driver();
   double time = 0;
 
   Laptime(Driver d, double time) {
@@ -37,15 +37,15 @@ class QualifyingLeaderboard {
 
     for(int i = 0; i < drivers_amount - 1; i++) {
       for(int j = i + 1; j < drivers_amount; j++) {
-        if(positions[i].driver.personal_info.surname.compareTo(positions[j].driver.personal_info.surname) > 0) {
+        if(positions[i].driver.personal_info.surname!.compareTo(positions[j].driver.personal_info.surname!) > 0) {
           Laptime temp = Laptime(positions[j].driver, positions[j].time);
           positions[j].driver = positions[i].driver;
           positions[j].time = positions[i].time;
           positions[i].driver = temp.driver;
           positions[i].time = temp.time;
         }
-        else if(positions[i].driver.personal_info.surname.compareTo(positions[j].driver.personal_info.surname) == 0) {
-          if(positions[i].driver.personal_info.name.compareTo(positions[j].driver.personal_info.name) > 0) {
+        else if(positions[i].driver.personal_info.surname!.compareTo(positions[j].driver.personal_info.surname!) == 0) {
+          if(positions[i].driver.personal_info.name!.compareTo(positions[j].driver.personal_info.name!) > 0) {
             Laptime temp = Laptime(positions[j].driver, positions[j].time);
             positions[j].driver = positions[i].driver;
             positions[j].time = positions[i].time;
@@ -68,7 +68,7 @@ class QualifyingLeaderboard {
     }
     for(Laptime position in this.positions) {
       stdout.write("[${position.driver.personal_info.surname} ${position.driver.personal_info.name},  \t${position.time},\t");
-      stdout.write("${(((position.driver.racing_stats.pace.race + position.driver.racing_stats.pace.dry) * 100) / 2).round()}]\n");
+      stdout.write("${(((position.driver.racing_stats.pace.race! + position.driver.racing_stats.pace.dry!) * 100) / 2).round()}]\n");
     }
   }
 
@@ -125,11 +125,11 @@ class Event {
   get_laptime(Driver driver) {
     double? delta_based_on_session = 0, delta_based_on_weather = 0, total_delta = 0;
     if(session == "race")
-      delta_based_on_session = (average_stat - driver.racing_stats.pace.race) * race_delta_factor;
+      delta_based_on_session = (average_stat - driver.racing_stats.pace.race!) * race_delta_factor;
     else
-      delta_based_on_session = (average_stat - driver.racing_stats.pace.qualifying) * qualifying_delta_factor;
+      delta_based_on_session = (average_stat - driver.racing_stats.pace.qualifying!) * qualifying_delta_factor;
 
-    delta_based_on_weather = weather.dry * ((average_stat - driver.racing_stats.pace.dry) * dry_delta_factor) + weather.wet * ((average_stat - driver.racing_stats.pace.wet) * wet_delta_factor);
+    delta_based_on_weather = weather.dry * ((average_stat - driver.racing_stats.pace.dry!) * dry_delta_factor) + weather.wet * ((average_stat - driver.racing_stats.pace.wet!) * wet_delta_factor);
     total_delta = delta_based_on_session + delta_based_on_weather;
 
     double perfect_time = 0;
@@ -139,7 +139,7 @@ class Event {
       perfect_time = track.average_wet_time + total_delta;
     
     
-    double variance_based_on_consistency = /* (2 / driver.racing_stats.consistency) */ 0.02 / pow(driver.racing_stats.consistency, 5);
+    double variance_based_on_consistency = /* (2 / driver.racing_stats.consistency) */ 0.02 / pow(driver.racing_stats.consistency!, 5);
     double probabilistic_time = get_gaussian_double(perfect_time, variance_based_on_consistency);
     double real_time = (1000 * (perfect_time + (perfect_time - probabilistic_time).abs())).round() / 1000;
 

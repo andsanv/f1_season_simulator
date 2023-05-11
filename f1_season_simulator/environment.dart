@@ -1,45 +1,64 @@
 import 'distribution.dart';
+import 'dart:io';
 
 class Corners {
   int slow_corners_amount = 0;
   int medium_corners_amount = 0;
   int fast_corners_amount = 0;
 
-  Corners(sca, mca, fca) {
-    this.slow_corners_amount = sca;
-    this.medium_corners_amount = mca;
-    this.fast_corners_amount = fca;
+  Corners(slow_corners_amount, medium_corners_amount, fast_corners_amount) {
+    this.slow_corners_amount = slow_corners_amount;
+    this.medium_corners_amount = medium_corners_amount;
+    this.fast_corners_amount = fast_corners_amount;
   }
 }
 
 class Track {
-  String name = "";
-  String nation = "";
-  double length = 0;
-  double rain_probability = 0;
-  double rain_intensity = 0;
+  String? _name;
+  String? _nation;
+  double? _length;
+  double? _rain_probability;
+  double? _rain_intensity;
 
-  double average_dry_time = 0;
-  double average_wet_time = 0;
+  double? _average_dry_time;
+  double? _average_wet_time;
 
-  int straights_amount = 0;
-  List<double> straights_length = [];
-  int braking_zones = 0;
-  Corners corners = Corners(0, 0, 0);
+  int? _straights_amount;
+  List<double> _straights_length = [];
+  int? _braking_zones;
+  late Corners _corners;
 
-  Track() {
-    this.name = "Monza";
-    this.nation = "Italy";
-    this.length = 5793;
-    this.rain_probability = 0;
-    this.rain_intensity = 0.5;
-    this.average_dry_time = 80.161;
-    this.average_wet_time = 1.15 * average_dry_time;
-    this.straights_amount = 5;
-    this.straights_length = [0.7,0.5,0.15,0.4,0.4];
-    this.braking_zones = 6;
-    this.corners = Corners(4, 2, 4);
+  Track({String? track_name}) {
+    if(track_name == null) random_init();
+    else {
+      File fp = File("tracks.csv");
+      List<String> lines = fp.readAsLinesSync();
+      int? counter;
+      List<String>? words;
+      
+      for(counter = 1; counter! < lines.length; counter++) {
+        words = lines[counter].split(',');
+        if(words[1].toLowerCase() == track_name.toLowerCase()) break;
+      }
+
+      this._name = words![1];
+      this._nation = words[2];
+      this._length = double.parse(words[3]);
+      this._rain_probability = double.parse(words[4]);
+      this._rain_intensity = double.parse(words[5]);
+      this._average_dry_time = double.parse(words[6]);
+      this._average_wet_time = _average_dry_time! * 1.15;
+      this._straights_amount = int.parse(words[7]);
+      
+      for(int i = 8; i < 8 + _straights_amount!; i++)
+        _straights_length.add(double.parse(words[i]));
+      
+      this._braking_zones = int.parse(words[words.length - 4]);
+      this._corners = Corners(int.parse(words[words.length - 3]), int.parse(words[words.length - 2]), int.parse(words[words.length - 1]));
+    }
   }
+
+  void random_init()
 }
 
 

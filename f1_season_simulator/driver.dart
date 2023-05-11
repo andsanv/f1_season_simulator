@@ -245,20 +245,6 @@ String random_from_list(List<String> list) {
 }
 
 
-List<String> build_list_from_csv(String path, int row_in_csv, int column_in_csv) {
-  File file = File(path);
-  List<String> lines = file.readAsLinesSync(), list = [];
-
-  for(int i = row_in_csv; i < lines.length; i++) {
-    var words = lines[i].split(',');
-    list.add(words[column_in_csv]);
-  }
-
-  return list;
-}
-
-
-
 
 
 double random_stat(ability_enum? ability, {double mean = 0.75, double variance = 0.005}) {
@@ -286,6 +272,8 @@ double random_stat(ability_enum? ability, {double mean = 0.75, double variance =
   return (temp * 100).round() / 100;
 }
 
+
+
 ability_enum potential_to_ability_enum(double? potential) {
   potential!;
   if(potential >= 0.90)
@@ -301,13 +289,16 @@ ability_enum potential_to_ability_enum(double? potential) {
 }
 
 
+
 double experience_calc(int years) {
   if(years >= 15) return 0.99;
   return ((sqrt(156538.92 - pow(years - 20.68, 2)) - 394.61) * 100).round() / 100;
 }
 
 
+
 double random_potential() => (min(max(0.70, get_gaussian_double(0.825, 0.008)), 0.99) * 100).round() / 100;
+
 
 
 List<Driver> create_random_drivers_list(int drivers_number) {
