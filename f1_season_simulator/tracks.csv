@@ -1,0 +1,2 @@
+#,name,nation,length,rain_prob,rain_intensity,track_average_time,straights_amount,[straights_lengths(1 to 10)],braking_zones,slow_corners,medium_corners,fast_corners
+0,Monza,Italy,5793,80.161,5,0.7,0.5,0.15,0.4,0.4,6,4,2,4

@@ -1,0 +1,21 @@
+#,name,surname,gender,age,nationality,height,weight,potential,ability,cornering,braking,race_pace,qualifying_pace,dry_pace,wet_pace,attack,defense,consistency,experience
+0,Antonio,Milani,Male,Italian,1.73,64.85,0.97,Ability.good,0.94,0.79,0.8,0.65,0.72,0.72,0.76,0.76,0.86,0.5
+1,Salvatore,Esposito,Male,Italian,1.79,67.96,0.85,Ability.decent,0.81,0.73,0.86,0.78,0.62,0.73,0.71,0.83,0.73,0.5
+2,Salvatore,Ricci,Male,Italian,1.78,68.11,0.95,Ability.good,0.66,0.78,0.77,0.75,0.82,0.9,0.74,0.86,0.9,0.5
+3,Pietro,De Santis,Male,Italian,1.81,63.99,0.81,Ability.mediocre,0.73,0.8,0.69,0.73,0.66,0.72,0.85,0.72,0.68,0.5
+4,Alessio,Orlando,Male,Italian,1.78,65.88,0.79,Ability.lacking,0.73,0.75,0.66,0.64,0.79,0.74,0.61,0.7,0.66,0.5
+5,Angelo,Sanna,Male,Italian,1.83,67.77,0.79,Ability.lacking,0.73,0.6,0.73,0.7,0.7,0.87,0.77,0.63,0.83,0.5
+6,Pietro,De Rosa,Male,Italian,1.77,65.19,0.93,Ability.good,0.69,0.81,0.64,0.71,0.94,0.71,0.84,0.68,0.91,0.5
+7,Simone,Messina,Male,Italian,1.81,61.78,0.88,Ability.decent,0.71,0.9,0.85,0.85,0.83,0.79,0.87,0.83,0.76,0.5
+8,Marco,Mazza,Male,Italian,1.8,61.97,0.99,Ability.good,0.84,0.91,0.66,0.82,0.69,0.89,0.77,0.76,0.83,0.5
+9,Nicola,D'angelo,Male,Italian,1.81,59.33,0.82,Ability.mediocre,0.59,0.71,0.74,0.9,0.69,0.72,0.88,0.66,0.72,0.5
+10,Claudio,Ferraro,Male,Italian,1.76,60.72,0.99,Ability.good,0.77,0.76,0.66,0.89,0.65,0.87,0.87,0.86,0.77,0.5
+11,Cristiano,Serra,Male,Italian,1.83,64.23,0.86,Ability.decent,0.85,0.7,0.74,0.75,0.72,0.73,0.72,0.58,0.69,0.5
+12,Matteo,Romano,Male,Italian,1.82,65.68,0.92,Ability.good,0.77,0.86,0.69,0.84,0.79,0.87,0.89,0.92,0.84,0.5
+13,Francesco,Bernardi,Male,Italian,1.83,63.02,0.89,Ability.decent,0.62,0.83,0.64,0.71,0.84,0.77,0.65,0.8,0.71,0.5
+14,Emanuele,Monti,Male,Italian,1.82,62.69,0.79,Ability.lacking,0.83,0.63,0.71,0.62,0.72,0.79,0.77,0.74,0.69,0.5
+15,Giovanni,Negri,Male,Italian,1.73,66.8,0.81,Ability.mediocre,0.8,0.8,0.71,0.79,0.84,0.75,0.76,0.92,0.84,0.5
+16,Luigi,Mazza,Male,Italian,1.78,64.19,0.9,Ability.good,0.83,0.64,0.72,0.8,0.7,0.7,0.76,0.71,0.82,0.5
+17,Simone,Amato,Male,Italian,1.82,66.02,0.75,Ability.lacking,0.76,0.82,0.57,0.79,0.75,0.81,0.62,0.67,0.79,0.5
+18,Osvaldo,Testa,Male,Italian,1.85,65.46,0.72,Ability.bad,0.62,0.6,0.74,0.63,0.59,0.62,0.77,0.55,0.61,0.5
+19,Alberto,Mariani,Male,Italian,1.79,69.64,0.79,Ability.lacking,0.9,0.62,0.74,0.75,0.85,0.77,0.63,0.57,0.75,0.5
