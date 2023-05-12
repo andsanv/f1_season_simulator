@@ -3,6 +3,7 @@ import 'dart:io';
 import 'environment.dart';
 import 'distribution.dart';
 import 'driver.dart';
+import 'car.dart';
 
 
 const double average_stat = 0.75;
@@ -13,122 +14,158 @@ const double wet_delta_factor = 2;
 
 
 
-class Laptime {
-  Driver driver = Driver();
-  double time = 0;
+// Year {
+//   Standings {
+//     Positions[20] {
+//       driver
+//       team
+//       points
+//     }
+//   }
+//
+//   events[20] {
+//     track
+//     weather
+//     qualifying {
+//        leaderboard
 
-  Laptime(Driver d, double time) {
-    this.driver = d;
-    this.time = time;
+//     }
+//     race {
+//      
+//     }
+//   }
+// }
+
+
+class Position {
+  //attributes
+  Driver? _driver;
+  double? _laptime;
+
+  //constructors
+  Position({Driver? driver, double? laptime}) {
+    if(driver != null) this._driver = driver;
+    if(laptime != null) this._laptime = laptime;
   }
+
+  //setters
+  void set driver(Driver? value) { if(value != null) this._driver = value; }
+  void set laptime(double? value) { if(value != null) this._laptime = value; }
+
+  //getters
+  Driver? get driver => this._driver;
+  double? get laptime => this._laptime;
 }
 
 
-class QualifyingLeaderboard {
-  List<Laptime> positions = [];
-  bool initialized = false;
+class SingleLapLeaderboard {
+  //attributes
+  List<Position> _positions = [];
+  bool _initialized = false;
 
-  Ranking() {}
+  //constructors
 
-  void initialize(List<Driver> drivers_list) {
-    for(int i = 0; i < drivers_amount; i++) {
-      positions.add(Laptime(drivers_list[i], 0));
-    }
+  //methods
+  void init(List<Driver> drivers_list) {
+    for(int i = 0; i < drivers_amount; i++) this._positions.add(Position(driver: drivers_list[i], laptime: 0));
 
-    for(int i = 0; i < drivers_amount - 1; i++) {
+    for(int i = 0; i < drivers_amount - 1; i++)
       for(int j = i + 1; j < drivers_amount; j++) {
-        if(positions[i].driver.personal_info.surname!.compareTo(positions[j].driver.personal_info.surname!) > 0) {
-          Laptime temp = Laptime(positions[j].driver, positions[j].time);
-          positions[j].driver = positions[i].driver;
-          positions[j].time = positions[i].time;
-          positions[i].driver = temp.driver;
-          positions[i].time = temp.time;
+        if((this._positions[i].driver?.personal_info.surname!.compareTo((this._positions[j].driver?.personal_info.surname)!))! > 0) {
+          Position temp = Position(driver: this._positions[j]._driver, laptime: this._positions[j]._laptime);
+          this._positions[j]._driver = this._positions[i]._driver;
+          this._positions[j]._laptime = this._positions[i]._laptime;
+          this._positions[i]._driver = temp.driver;
+          this._positions[i]._laptime = temp.laptime;
         }
-        else if(positions[i].driver.personal_info.surname!.compareTo(positions[j].driver.personal_info.surname!) == 0) {
-          if(positions[i].driver.personal_info.name!.compareTo(positions[j].driver.personal_info.name!) > 0) {
-            Laptime temp = Laptime(positions[j].driver, positions[j].time);
-            positions[j].driver = positions[i].driver;
-            positions[j].time = positions[i].time;
-            positions[i].driver = temp.driver;
-            positions[i].time = temp.time;
+        else if((this._positions[i].driver?.personal_info.surname!.compareTo((this._positions[j].driver?.personal_info.surname)!))! == 0) {
+          if((this._positions[i].driver?.personal_info.name!.compareTo((this._positions[j].driver?.personal_info.name)!))! > 0) {
+            Position temp = Position(driver: this._positions[j]._driver, laptime: this._positions[j]._laptime);
+            this._positions[j]._driver = this._positions[i]._driver;
+            this._positions[j]._laptime = this._positions[i]._laptime;
+            this._positions[i]._driver = temp.driver;
+            this._positions[i]._laptime = temp.laptime;
           }
           else continue;
         }
-
       }
-    }  
 
-    this.initialized = true;
+    this._initialized = true;
   }
 
-  void print_all() {
-    if(this.initialized == false) {
-      print("ranking is empty.");
-      return;
+  void update(Position new_laptime) {
+    if(this._positions[0].driver == new_laptime.driver) {
+      if(new_laptime.laptime! <= this._positions[0].laptime! || positions[0].laptime == 0) this._positions[0].laptime = new_laptime.laptime;
     }
-    for(Laptime position in this.positions) {
-      stdout.write("[${position.driver.personal_info.surname} ${position.driver.personal_info.name},  \t${position.time},\t");
-      stdout.write("${(((position.driver.racing_stats.pace.race! + position.driver.racing_stats.pace.dry!) * 100) / 2).round()}]\n");
-    }
-  }
-
-
-  void update(Laptime new_laptime) {
-    if(positions[0].driver == new_laptime.driver) {
-      if(new_laptime.time <= positions[0].time || positions[0].time == 0)
-        positions[0].time = new_laptime.time;
-      }
     else {
       int target_bottom = 0;
-      for(Laptime position in positions) {
-        if(position.driver != new_laptime.driver) {
-          target_bottom += 1;
-        }
+      for(Position position in this._positions) {
+        if(position.driver != new_laptime.driver) target_bottom += 1;
         else break;
       }
 
       int target_top = 0;
-      for(Laptime position in positions) {
-        if(position.time <= new_laptime.time && position.time != 0) {
-          target_top += 1;
-        }
+      for(Position position in this._positions) {
+        if(position.laptime! <= new_laptime.laptime! && position.laptime != 0) target_top += 1;
         else break;
       }
 
       if(target_top < target_bottom) {
-        for(int i = target_bottom; i > target_top; i--) {
-          positions[i] = positions[i - 1];
-        }
-        positions[target_top] = new_laptime;
+        for(int i = target_bottom; i > target_top; i--) positions[i] = positions[i - 1]; 
+        this._positions[target_top] = new_laptime;
       }
-      else if(target_top == target_bottom) positions[target_top].time = new_laptime.time;
+      else if(target_top == target_bottom) this._positions[target_top].laptime = new_laptime.laptime;
     }
   }
-}
 
+  void print() {
+    stdout.write("LEADERBOARD\n");
+    int counter = 1;
 
-
-class Event {
-  int year = 0;
-  Track track = NullTrack;
-  Weather weather = NullWeather;
-  String session = "";
-
-  Event(int year, Track track, String session) {
-    this.year = year;
-    this.track = track;
-    this.weather = Weather(this.track);
-    this.session = session;
+    for(Position position in this._positions) {
+      stdout.write("$counter: ${position.driver?.personal_info.name![0]}. ");
+      stdout.write("${position.driver?.personal_info.surname}\n\t");
+      stdout.write("${position.laptime}\n");
+      counter++;
+    }
+    stdout.write("\n");
   }
 
+  //setters
 
-  get_laptime(Driver driver) {
-    double? delta_based_on_session = 0, delta_based_on_weather = 0, total_delta = 0;
-    if(session == "race")
-      delta_based_on_session = (average_stat - driver.racing_stats.pace.race!) * race_delta_factor;
-    else
-      delta_based_on_session = (average_stat - driver.racing_stats.pace.qualifying!) * qualifying_delta_factor;
+  //getters
+  List<Position> get positions => this._positions;
+  bool get initialized => this._initialized;
+}
 
+// class OnTrackGapLeaderboard {}
+
+
+class Qualifying {
+  //attributes
+  late List<Driver> _drivers_list;
+  late Track _track;
+  late Weather _weather;
+  SingleLapLeaderboard _leaderboard = SingleLapLeaderboard();
+
+
+  //constructors
+  Qualifying(List<Driver> drivers_list, Track track, Weather weather, ) {
+    for(Driver driver in this._drivers_list) {
+      _leaderboard.update(get_laptime(driver, this._track, this._weather)) {
+
+      }
+    }
+  }
+
+  //methods
+  void start() {
+
+  }
+
+  double get_laptime(Driver driver, Track track, Weather weather) {
+    double delta_based_on_track = 0, delta_based_on_session = 0, delta_based_on_weather = 0, total_delta = 0;
+    delta_based_on_session = (average_stat - driver.racing_stats.pace.qualifying!) * qualifying_delta_factor;
     delta_based_on_weather = weather.dry * ((average_stat - driver.racing_stats.pace.dry!) * dry_delta_factor) + weather.wet * ((average_stat - driver.racing_stats.pace.wet!) * wet_delta_factor);
     total_delta = delta_based_on_session + delta_based_on_weather;
 
@@ -145,4 +182,49 @@ class Event {
 
     return [perfect_time, total_delta, Laptime(driver, real_time)];
   }
+
+
+  //setters
+  //getters
 }
+
+
+
+// class Event {
+//   int year = 0;
+//   Track track = NullTrack;
+//   Weather weather = NullWeather;
+//   String session = "";
+
+//   Event(int year, Track track, String session) {
+//     this.year = year;
+//     this.track = track;
+//     this.weather = Weather(this.track);
+//     this.session = session;
+//   }
+
+
+//   get_laptime(Driver driver) {
+//     double? delta_based_on_session = 0, delta_based_on_weather = 0, total_delta = 0;
+//     if(session == "race")
+//       delta_based_on_session = (average_stat - driver.racing_stats.pace.race!) * race_delta_factor;
+//     else
+//       delta_based_on_session = (average_stat - driver.racing_stats.pace.qualifying!) * qualifying_delta_factor;
+
+//     delta_based_on_weather = weather.dry * ((average_stat - driver.racing_stats.pace.dry!) * dry_delta_factor) + weather.wet * ((average_stat - driver.racing_stats.pace.wet!) * wet_delta_factor);
+//     total_delta = delta_based_on_session + delta_based_on_weather;
+
+//     double perfect_time = 0;
+//     if(weather.dry == 1)
+//       perfect_time = track.average_dry_time + total_delta;
+//     else
+//       perfect_time = track.average_wet_time + total_delta;
+    
+    
+//     double variance_based_on_consistency = /* (2 / driver.racing_stats.consistency) */ 0.02 / pow(driver.racing_stats.consistency!, 5);
+//     double probabilistic_time = get_gaussian_double(perfect_time, variance_based_on_consistency);
+//     double real_time = (1000 * (perfect_time + (perfect_time - probabilistic_time).abs())).round() / 1000;
+
+//     return [perfect_time, total_delta, Laptime(driver, real_time)];
+//   }
+// }

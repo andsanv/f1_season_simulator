@@ -216,14 +216,14 @@ class Driver {
   }
 
   //methods
-  void print_info() {
-    print("${this._personal_info._name?.toUpperCase()} ${this._personal_info.surname?.toUpperCase()}");
-    print("Info:\n${this._personal_info._gender}, ${this._personal_info._age}, ${this._personal_info._nationality}, ${this._personal_info._height}m, ${this._personal_info._weight}kg");
-    print("\nStats:\nPotential: ${this._racing_stats._potential} (${this._racing_stats._ability})");
-    print("Cornering: ${this._racing_stats._cornering}\nBraking: ${this._racing_stats._braking}");
-    print("Pace: race = ${this._racing_stats._pace._race}, qualifying = ${this._racing_stats._pace._qualifying}, dry = ${this._racing_stats._pace._dry}, wet = ${this._racing_stats._pace._wet}");
-    print("Attack: ${this._racing_stats._attack}\nDefense: ${this._racing_stats._defense}");
-    print("Consistency: ${this._racing_stats._consistency}\nExperience: ${this._racing_stats._experience}\n");
+  void print() {
+    stdout.write("${this._personal_info._surname}, ${this._personal_info.name}\n");
+    stdout.write("- info:\n\tgender = ${this._personal_info._gender}\n\tage = ${this._personal_info._age}\n\tnationality = ${this._personal_info._nationality}\n\theight = ${this._personal_info._height}m\n\tweight = ${this._personal_info._weight}kg\n");
+    stdout.write("- stats:\n\tPotential: ${this._racing_stats._potential} (${this._racing_stats._ability})\n\t");
+    stdout.write("cornering: ${this._racing_stats._cornering}\n\tbraking: ${this._racing_stats._braking}\n\t");
+    stdout.write("pace: race = ${this._racing_stats._pace._race}, qualifying = ${this._racing_stats._pace._qualifying}, dry = ${this._racing_stats._pace._dry}, wet = ${this._racing_stats._pace._wet}\n\t");
+    stdout.write("attack: ${this._racing_stats._attack}\n\tdefense: ${this._racing_stats._defense}\n\t");
+    stdout.write("consistency: ${this._racing_stats._consistency}\n\texperience: ${this._racing_stats._experience}\n\n");
   }
 
   //setters
