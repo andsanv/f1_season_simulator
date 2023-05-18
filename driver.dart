@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:math';
 import 'distribution.dart';
+import 'team.dart';
+import 'car.dart';
 
 
 
@@ -139,10 +141,11 @@ class PersonalInfo {
   int? _career_years;
   double? _height;
   double? _weight;
+  Team? _current_team;
   
   //constructors
   PersonalInfo({String? name, String? surname, String? gender, String? nationality, int? age,
-                int? career_years, double? height, double? weight }) {
+                int? career_years, double? height, double? weight, Team? current_team}) {
     this._name = name;
     this._surname = surname;
     this._gender = gender;
@@ -151,6 +154,7 @@ class PersonalInfo {
     this._career_years = career_years;
     this._height = height;
     this._weight = weight;
+    this._current_team = current_team;
   }
 
   //methods
@@ -163,6 +167,7 @@ class PersonalInfo {
     if(this._height == null) this._height = min(max(min_height, get_gaussian_double(178.5, 15).round()), max_height)/100;
     if(this._weight == null) this._weight = min(max(min_weight, (100 * get_gaussian_double(65, 15)).round() / 100), max_weight);
     if(this._career_years == null) this._career_years = 0;
+    if(this._current_team == null) this._current_team = Team("redbull");
   }
 
   //setters
@@ -174,6 +179,7 @@ class PersonalInfo {
   void set career_years(int? value) => this._career_years = value;
   void set height(double? value) => this._height = value;
   void set weight(double? value) => this._weight = value;
+  void set current_team(Team? value) => this._current_team = value;
 
   //getters
   String? get name => this._name;
@@ -184,6 +190,7 @@ class PersonalInfo {
   int? get career_years => this._career_years;
   double? get height => this._height;
   double? get weight => this._weight;
+  Team? get current_team => this._current_team;
 }
 
 
@@ -196,9 +203,9 @@ class Driver {
   Driver({String? name, String? surname, String? gender, String? nationality, int? age, int? career_years, double? height,
           double? weight, ability_enum? ability, double? potential, double? cornering, double? braking, double? race_pace,
           double? qualifying_pace, double? dry_pace, double? wet_pace, double? attack, double? defense, double? consistency,
-          double? experience}) {
+          double? experience, Team? current_team}) {
     this._personal_info = PersonalInfo(name: name, surname: surname, gender: gender, nationality: nationality, age: age,
-                                       career_years: career_years, height: height, weight: weight);
+                                       career_years: career_years, height: height, weight: weight, current_team: current_team);
     this._racing_stats = RacingStats(ability: ability, potential: potential, cornering: cornering, braking: braking,
                                      race_pace: race_pace, qualifying_pace: qualifying_pace, dry_pace: dry_pace, wet_pace: wet_pace,
                                      attack: attack, defense: defense, consistency: consistency, experience: experience);
@@ -207,9 +214,9 @@ class Driver {
   Driver.Random({String? name, String? surname, String? gender, String? nationality, int? age, int? career_years, double? height,
           double? weight, ability_enum? ability, double? potential, double? cornering, double? braking, double? race_pace,
           double? qualifying_pace, double? dry_pace, double? wet_pace, double? attack, double? defense, double? consistency,
-          double? experience}) {
+          double? experience, Team? current_team}) {
     (this._personal_info = PersonalInfo(name: name, surname: surname, gender: gender, nationality: nationality, age: age,
-                                       career_years: career_years, height: height, weight: weight)).random_init();
+                                       career_years: career_years, height: height, weight: weight, current_team: current_team)).random_init();
     (this._racing_stats = RacingStats(ability: ability, potential: potential, cornering: cornering, braking: braking,
                                      race_pace: race_pace, qualifying_pace: qualifying_pace, dry_pace: dry_pace, wet_pace: wet_pace,
                                      attack: attack, defense: defense, consistency: consistency, experience: experience)).random_init(career_years: personal_info.career_years);
@@ -218,7 +225,7 @@ class Driver {
   //methods
   void print() {
     stdout.write("${this._personal_info._surname}, ${this._personal_info.name}\n");
-    stdout.write("- info:\n\tgender = ${this._personal_info._gender}\n\tage = ${this._personal_info._age}\n\tnationality = ${this._personal_info._nationality}\n\theight = ${this._personal_info._height}m\n\tweight = ${this._personal_info._weight}kg\n");
+    stdout.write("- info:\n\tgender = ${this._personal_info._gender}\n\tage = ${this._personal_info._age}\n\tnationality = ${this._personal_info._nationality}\n\theight = ${this._personal_info._height}m\n\tweight = ${this._personal_info._weight}kg\n\tcurrent team = ${this._personal_info.current_team}\n");
     stdout.write("- stats:\n\tPotential: ${this._racing_stats._potential} (${this._racing_stats._ability})\n\t");
     stdout.write("cornering: ${this._racing_stats._cornering}\n\tbraking: ${this._racing_stats._braking}\n\t");
     stdout.write("pace: race = ${this._racing_stats._pace._race}, qualifying = ${this._racing_stats._pace._qualifying}, dry = ${this._racing_stats._pace._dry}, wet = ${this._racing_stats._pace._wet}\n\t");

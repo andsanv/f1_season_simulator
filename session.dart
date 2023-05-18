@@ -164,23 +164,21 @@ class Qualifying {
   }
 
   double get_laptime(Driver driver, Track track, Weather weather) {
-    double delta_based_on_track = 0, delta_based_on_session = 0, delta_based_on_weather = 0, total_delta = 0;
-    delta_based_on_session = (average_stat - driver.racing_stats.pace.qualifying!) * qualifying_delta_factor;
-    delta_based_on_weather = weather.dry * ((average_stat - driver.racing_stats.pace.dry!) * dry_delta_factor) + weather.wet * ((average_stat - driver.racing_stats.pace.wet!) * wet_delta_factor);
-    total_delta = delta_based_on_session + delta_based_on_weather;
-
-    double perfect_time = 0;
-    if(weather.dry == 1)
-      perfect_time = track.average_dry_time + total_delta;
-    else
-      perfect_time = track.average_wet_time + total_delta;
+    double get_random_time(double mean, double variance) => min(max(get_gaussian_double(mean, variance), mean - 0.2), mean + 0.2);
+    double corners_delta = 0, straights_delta = 0;
+    for(int i = 0; i < track.corners.slow_corners_amount!; i++) {
+      corners_delta += (average_stat - driver.racing_stats.cornering!) * get_random_time(0.16, 0.0002) + (average_stat - driver.personal_info.current_team!.car.chassis) * get_random_time(0.24, 0.0002) + weather.wet! * ((average_stat - driver.racing_stats.wet_pace!) / 0.25) * 0.1;
+    }
+    for(int i = 0; i < track.corners.medium_corners_amount!; i++) {
+      corners_delta += (average_stat - driver.racing_stats.cornering!) * get_random_time(0.16, 0.0002) + (average_stat * 2 - driver.personal_info.current_team!.car.chassis - driver.personal_info.current_team!.car.downforce) * get_random_time(0.24, 0.0002) + weather.wet! * ((average_stat - driver.racing_stats.wet_pace!) / 0.25) * 0.1;
+    }
+    for(int i = 0; i < track.corners.slow_corners_amount!; i++) {
+      corners_delta += (average_stat - driver.racing_stats.cornering!) * get_random_time(0.16, 0.0002) + (average_stat - driver.personal_info.current_team!.car.downforce) * get_random_time(0.24, 0.0002) + weather.wet! * ((average_stat - driver.racing_stats.wet_pace!) / 0.25) * 0.1;;
+    }
+    for(int i = 0; i < track.straights_amount!; i++) {
+      straights_delta += (average_stat * 2 - driver.personal_info.current_team!.car.engine - driver.personal_info.current_team!.car.efficiency) * track.straights_length[i] * get_random_time(0.8, 0.00005);
+    }
     
-    
-    double variance_based_on_consistency = /* (2 / driver.racing_stats.consistency) */ 0.02 / pow(driver.racing_stats.consistency!, 5);
-    double probabilistic_time = get_gaussian_double(perfect_time, variance_based_on_consistency);
-    double real_time = (1000 * (perfect_time + (perfect_time - probabilistic_time).abs())).round() / 1000;
-
-    return [perfect_time, total_delta, Laptime(driver, real_time)];
   }
 
 

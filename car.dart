@@ -1,4 +1,10 @@
+import 'dart:io';
+import 'dart:math';
+import 'distribution.dart';
+
+
 const double default_stat = 0.75;
+const String official_cars_path = "cars.csv";
 
 
 bool stat_is_valid(double stat) => 0 <= stat && stat <= 1;
@@ -58,6 +64,15 @@ class Car {
 
     if(stat_is_valid(reliability)) this._reliability = round_to_2_decimals(reliability);
     else this._reliability = default_stat;
+  }
+  
+  Car.Random() {
+    double get_random_stat() => (100 * min(max(0.50, get_gaussian_double(0.825, 0.005)), 0.99)).round() / 100;
+    
+    this._engine = get_random_stat();
+    this._aero = Aero(get_random_stat(), get_random_stat());
+    this._chassis = get_random_stat();
+    this._reliability = get_random_stat();
   }
 
   //methods

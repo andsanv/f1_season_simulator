@@ -16,12 +16,23 @@ const double wet_delta_factor = 2;
 
 
 void main() {
-  surnames = build_list_from_csv("ita_surnames.csv", row: 1, column: 1);
-  names = build_list_from_csv("ita_names.csv", row: 1, column: 0);
+  // surnames = build_list_from_csv("ita_surnames.csv", row: 1, column: 1);
+  // names = build_list_from_csv("ita_names.csv", row: 1, column: 0);
 
-  drivers_list = create_random_drivers_list(drivers_amount);
+  // drivers_list = create_random_drivers_list(drivers_amount);
   
-  
+  List<int> occurrencies = [];
+  for(int i = 0; i < 20; i++) {
+    occurrencies.add(0);
+  }
+  for(int i = 0; i < 100; i++) {
+    var temp = min(max(get_gaussian_double(0.12, 0.0002), 0.10), 0.14);
+    print(temp);
+    occurrencies[(temp * 100).round()]++;
+  }  
+
+  for(int i = 0; i < 20; i++)
+    print('*' * occurrencies[i]);
 
   return;
 }
