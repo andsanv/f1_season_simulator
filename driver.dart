@@ -167,7 +167,7 @@ class PersonalInfo {
     if(this._height == null) this._height = min(max(min_height, get_gaussian_double(178.5, 15).round()), max_height)/100;
     if(this._weight == null) this._weight = min(max(min_weight, (100 * get_gaussian_double(65, 15)).round() / 100), max_weight);
     if(this._career_years == null) this._career_years = 0;
-    if(this._current_team == null) this._current_team = Team("redbull");
+    if(this._current_team == null) this._current_team = Team(random_from_list(official_team_names));
   }
 
   //setters
@@ -225,7 +225,7 @@ class Driver {
   //methods
   void print() {
     stdout.write("${this._personal_info._surname}, ${this._personal_info.name}\n");
-    stdout.write("- info:\n\tgender = ${this._personal_info._gender}\n\tage = ${this._personal_info._age}\n\tnationality = ${this._personal_info._nationality}\n\theight = ${this._personal_info._height}m\n\tweight = ${this._personal_info._weight}kg\n\tcurrent team = ${this._personal_info.current_team}\n");
+    stdout.write("- info:\n\tgender = ${this._personal_info._gender}\n\tage = ${this._personal_info._age}\n\tnationality = ${this._personal_info._nationality}\n\theight = ${this._personal_info._height}m\n\tweight = ${this._personal_info._weight}kg\n\tcurrent team = ${this._personal_info.current_team!.team_name}\n");
     stdout.write("- stats:\n\tPotential: ${this._racing_stats._potential} (${this._racing_stats._ability})\n\t");
     stdout.write("cornering: ${this._racing_stats._cornering}\n\tbraking: ${this._racing_stats._braking}\n\t");
     stdout.write("pace: race = ${this._racing_stats._pace._race}, qualifying = ${this._racing_stats._pace._qualifying}, dry = ${this._racing_stats._pace._dry}, wet = ${this._racing_stats._pace._wet}\n\t");
@@ -312,7 +312,7 @@ List<Driver> create_random_drivers_list(int drivers_number) {
   List<Driver> list = [];
 
   for(int i = 0; i < drivers_number; i++) {
-    Driver dr = Driver();
+    Driver dr = Driver.Random();
     list.add(dr);
   }
 

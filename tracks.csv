@@ -1,3 +1,4 @@
+
 #,name,nation,length,rain_prob,rain_intensity,track_average_time,straights_amount,[straights_lengths(0 to 1)],braking_zones,slow_corners,medium_corners,fast_corners
 0,Sakhir,Bahrain,5412,0.05,0.1,79.708,4,0.6,0.3,0.4,0.4,8,3,6,6
 1,Jeddah,Saudi Arabia,6174,0.05,0.1,88.265,6,0.5,0.15,0.2,0.2,0.5,0.5,6,4,8,15

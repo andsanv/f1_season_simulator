@@ -65,6 +65,30 @@ class Car {
     if(stat_is_valid(reliability)) this._reliability = round_to_2_decimals(reliability);
     else this._reliability = default_stat;
   }
+
+  Car.Official(String official_team_name) {
+    File file = File(official_cars_path);
+    List<String> lines = file.readAsLinesSync();
+
+    for(int i = 1; i < 11; i++) {
+      List<String> words = lines[i].split(',');
+
+      if(words[1].replaceAll(' ', '').toLowerCase() == official_team_name.replaceAll(' ', '').toLowerCase()) {
+        this._engine = double.parse(words[2]);
+        this._aero = Aero(double.parse(words[4]), double.parse(words[3]));
+        this._chassis = double.parse(words[5]);
+        this.reliability = double.parse(words[6]);
+        return;
+      }
+
+      Car random_car = Car.Random();
+      this._engine = random_car.engine;
+      this._aero = random_car.aero;
+      this._chassis = random_car.chassis;
+      this._reliability = random_car.reliability;
+    }
+    
+  }
   
   Car.Random() {
     double get_random_stat() => (100 * min(max(0.50, get_gaussian_double(0.825, 0.005)), 0.99)).round() / 100;
