@@ -158,7 +158,7 @@ class Qualifying {
   }
 
   //methods
-  void start() {
+  void simulate() {
     for(Driver driver in driversList) {
       this._leaderboard.update(Position(driver: driver, laptime: get_laptime(driver,
                                                                              this._track,
@@ -170,29 +170,40 @@ class Qualifying {
   }
 
   double get_laptime(Driver driver, Track track, Weather weather) {
-    //double get_random_time(double mean, double variance) => min(max(get_gaussian_double(mean, variance), mean - 0.2), mean + 0.2);
-    double corners_delta = 0, straights_delta = 0, braking_delta = 0;
-    for(int i = 0; i < track.corners.slowCornersAmount; i++) {
-      corners_delta += (defaultStat - driver.racingStats.cornering) * 0.16 + (defaultStat - driver.personalInfo.currentTeam!.car.chassis) * 0.24 + weather.wet * ((defaultStat - driver.racingStats.pace.wet) / 0.25) * 0.1;
-    }
-    for(int i = 0; i < track.corners.mediumCornersAmount; i++) {
-      corners_delta += (defaultStat - driver.racingStats.cornering) * 0.16 + (defaultStat * 2 - driver.personalInfo.currentTeam!.car.chassis - driver.personalInfo.currentTeam!.car.downforce) * 0.24 + weather.wet * ((defaultStat - driver.racingStats.pace.wet) / 0.25) * 0.1;
-    }
-    for(int i = 0; i < track.corners.slowCornersAmount; i++) {
-      corners_delta += (defaultStat - driver.racingStats.cornering) * 0.16 + (defaultStat - driver.personalInfo.currentTeam!.car.downforce) * 0.24 + weather.wet * ((defaultStat - driver.racingStats.pace.wet) / 0.25) * 0.1;;
-    }
-    for(int i = 0; i < track.straightsAmount; i++) {
-      straights_delta += (defaultStat * 2 - driver.personalInfo.currentTeam!.car.engine - driver.personalInfo.currentTeam!.car.efficiency) * track.straightsLength[i] * 0.8;
-    }
-    for(int i = 0; i < track.brakingZonesAmount; i++) {
-      braking_delta += (defaultStat - driver.racingStats.braking) * 0.16 + (defaultStat * 2 - driver.personalInfo.currentTeam!.car.chassis - driver.personalInfo.currentTeam!.car.downforce) * 0.24 +  weather.wet * ((defaultStat - driver.racingStats.pace.wet) / 0.25) * 0.1;
+    double cornersDelta = 0, straightsDelta = 0, brakingDelta = 0;
+
+    for(int isc = 0, imc = 0, ifc = 0, ist = 0, ibz = 0;
+        isc < track.corners.slowCornersAmount || imc < track.corners.mediumCornersAmount || ifc < track.corners.fastCornersAmount
+        || ist < track.straightsAmount || ibz < track.brakingZonesAmount;
+        isc++, imc++, ifc++, ist++, ibz++) {
+      cornersDelta += (isc < track.corners.slowCornersAmount) ?
+        (defaultStat - driver.racingStats.cornering) * 0.16 + (defaultStat - driver.personalInfo.currentTeam!.car.chassis) * 0.24
+        + weather.wet * ((defaultStat - driver.racingStats.pace.wet) / 0.25) * 0.1 : 0;
+
+      cornersDelta += (imc < track.corners.mediumCornersAmount) ? 
+        (defaultStat - driver.racingStats.cornering) * 0.16 +
+        (defaultStat * 2 - driver.personalInfo.currentTeam!.car.chassis - driver.personalInfo.currentTeam!.car.downforce) * 0.24
+        + weather.wet * ((defaultStat - driver.racingStats.pace.wet) / 0.25) * 0.1 : 0;
+
+      cornersDelta += (ifc < track.corners.fastCornersAmount) ? 
+        (defaultStat - driver.racingStats.cornering) * 0.16 + (defaultStat - driver.personalInfo.currentTeam!.car.downforce) * 0.24
+        + weather.wet * ((defaultStat - driver.racingStats.pace.wet) / 0.25) * 0.1 : 0;
+      
+      straightsDelta += (ist < track.straightsAmount) ?
+        (defaultStat * 2 - driver.personalInfo.currentTeam!.car.engine - driver.personalInfo.currentTeam!.car.efficiency) *
+        track.straightsLength[ist] * 0.8 : 0;
+
+      brakingDelta += (ibz < track.brakingZonesAmount) ? 
+        (defaultStat - driver.racingStats.braking) * 0.16 +
+        (defaultStat * 2 - driver.personalInfo.currentTeam!.car.chassis - driver.personalInfo.currentTeam!.car.downforce) * 0.24 +
+        weather.wet * ((defaultStat - driver.racingStats.pace.wet) / 0.25) * 0.1 : 0;
     }
 
-    double track_delta = corners_delta + straights_delta + braking_delta;
-    double perfect_time = track.averageDryTime * weather.dry + track.averageWetTime  * weather.wet + track_delta;
-    double actual_time = perfect_time + (track_delta - getGaussianDouble(corners_delta + straights_delta + braking_delta, (39 - 38 * driver.racingStats.consistency) / 200)).abs();
+    double trackDelta = cornersDelta + straightsDelta + brakingDelta;
+    double perfectTime = track.averageDryTime * weather.dry + track.averageWetTime  * weather.wet + trackDelta;
+    double actualTime = perfectTime + (trackDelta - getGaussianDouble(cornersDelta + straightsDelta + brakingDelta, (39 - 38 * driver.racingStats.consistency) / 200)).abs();
 
-    return roundTo3Decimals(actual_time);
+    return roundTo3Decimals(actualTime);
   }
 
 

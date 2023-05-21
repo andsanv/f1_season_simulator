@@ -14,11 +14,11 @@ void main() {
 
   driversList = createRandomDriversList(driversAmount);
   
-  Track tr = Track("Sakhir");
+  Track tr = Track("Miami");
   Weather weather = Weather(tr, wet: 0);
   Qualifying quali = Qualifying(driversList, tr, weather);
 
-  quali.start();
+  quali.simulate();
   quali.leaderboard.print();
 
   return;

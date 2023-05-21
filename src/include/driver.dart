@@ -357,9 +357,11 @@ double randomPotential() => roundTo2Decimals(min(max(0.70, getGaussianDouble(0.8
 
 List<Driver> createRandomDriversList(int driversAmount) {
   List<Driver> list = [];
+  Driver? dr;
 
-  for(int i = 0; i < driversAmount; i++) {
-    Driver dr = Driver.Random();
+  for(int i = 0, j = -1; i < driversAmount; i++) {
+    if(i % 2 == 0) j += 1;
+    dr = Driver.Random(currentTeam: Team(officialTeamNames[j]));
     list.add(dr);
   }
 
