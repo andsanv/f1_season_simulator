@@ -14,7 +14,7 @@ void main() {
 
   driversList = createRandomDriversList(driversAmount);
   
-  Track tr = Track("Sakir");
+  Track tr = Track("Sakhir");
   Weather weather = Weather(tr, wet: 0);
   Qualifying quali = Qualifying(driversList, tr, weather);
 
