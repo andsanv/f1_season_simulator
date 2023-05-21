@@ -1,40 +1,30 @@
 import 'dart:io';
 import 'dart:math';
-import 'distribution.dart';
+
+import 'helpers.dart';
 
 
-const double default_stat = 0.75;
-const String official_cars_path = "cars.csv";
 
-
-bool stat_is_valid(double stat) => 0 <= stat && stat <= 1;
-double round_to_2_decimals(double value) => (value * 100).round() / 100;
+const double carDefaultStat = 0.825;
 
 
 
 class Aero {
   //attributes
-  late double _downforce;
-  late double _efficiency;
+  double _downforce = -1;
+  double _efficiency = -1;
 
   //constructors
   Aero(double downforce, double efficiency) {
-    this._downforce = downforce;
-    this._efficiency = efficiency;
+    this._downforce = (isValid(downforce)) ? downforce : defaultStat;
+    this._efficiency = (isValid(efficiency)) ? efficiency : defaultStat;
   }
 
   //methods
   
   //setters
-  void set downforce(double value) {
-    if(stat_is_valid(downforce)) this._downforce = round_to_2_decimals(downforce);
-    else this._downforce = default_stat;
-  }
-  
-  void set efficiency(double value) {
-    if(stat_is_valid(efficiency)) this._downforce = round_to_2_decimals(efficiency);
-    else this._efficiency = default_stat;
-  }
+  void set downforce(double value) => (isValid(value)) ? roundTo2Decimals(value) : defaultStat;
+  void set efficiency(double value) => (isValid(value)) ? roundTo2Decimals(value) : defaultStat;
 
   //getters
   double get downforce => this._downforce;
@@ -46,34 +36,43 @@ class Aero {
 
 class Car {
   //attributes
-  late double _engine;
-  late Aero _aero;
-  late double _chassis;
-  late double _reliability;
+  double _engine = -1;
+  Aero _aero = Aero(-1, -1);
+  double _chassis = -1;
+  double _reliability = -1;
+
 
   //constructors
-  Car(double engine, double downforce, double efficiency, double chassis, double reliability) {
-    if(stat_is_valid(engine)) this._engine = round_to_2_decimals(engine);
-    else this._engine = default_stat;
+  Car({double engine = defaultStat, double downforce = defaultStat, double efficiency = defaultStat,
+               double chassis = defaultStat, double reliability = defaultStat}) {
+    this._engine = (isValid(engine)) ? roundTo2Decimals(engine) : defaultStat;
+    this._chassis = (isValid(chassis)) ? roundTo2Decimals(chassis) : defaultStat;
+    this._reliability = (isValid(reliability)) ? roundTo2Decimals(reliability) : defaultStat;
 
-    if(stat_is_valid(downforce) && stat_is_valid(efficiency)) this._aero = Aero(downforce, efficiency);
-    else this._aero = Aero(default_stat, default_stat);
+    double d = (isValid(downforce)) ? roundTo2Decimals(downforce) : defaultStat;
+    double e = (isValid(efficiency)) ? roundTo2Decimals(efficiency) : defaultStat;
+    this._aero = Aero(d, e);
+  }
+  
+  Car.Random({double engine = -1, double downforce = -1, double efficiency = -1, double chassis = -1,
+              double reliability = -1}) {
+    this._engine = (isValid(engine)) ? roundTo2Decimals(engine) : getRandomStat(carDefaultStat);
+    this._chassis = (isValid(chassis)) ? roundTo2Decimals(chassis) : getRandomStat(carDefaultStat);
+    this._reliability = (isValid(reliability)) ? roundTo2Decimals(reliability) : getRandomStat(carDefaultStat);
 
-    if(stat_is_valid(chassis)) this._chassis = round_to_2_decimals(chassis);
-    else this._chassis = default_stat;
-
-    if(stat_is_valid(reliability)) this._reliability = round_to_2_decimals(reliability);
-    else this._reliability = default_stat;
+    double d = (isValid(downforce)) ? roundTo2Decimals(downforce) : getRandomStat(carDefaultStat);
+    double e = (isValid(efficiency)) ? roundTo2Decimals(efficiency) : getRandomStat(carDefaultStat);
+    this._aero = Aero(d, e);
   }
 
-  Car.Official(String official_team_name) {
-    File file = File(official_cars_path);
+  Car.Official(String officialTeamName) {
+    File file = File(officialCarsCsvPath);
     List<String> lines = file.readAsLinesSync();
 
     for(int i = 1; i < 11; i++) {
       List<String> words = lines[i].split(',');
 
-      if(words[1].replaceAll(' ', '').toLowerCase() == official_team_name.replaceAll(' ', '').toLowerCase()) {
+      if(words[1].replaceAll(' ', '').toLowerCase() == officialTeamName.replaceAll(' ', '').toLowerCase()) {
         this._engine = double.parse(words[2]);
         this._aero = Aero(double.parse(words[4]), double.parse(words[3]));
         this._chassis = double.parse(words[5]);
@@ -81,51 +80,25 @@ class Car {
         return;
       }
 
-      Car random_car = Car.Random();
-      this._engine = random_car.engine;
-      this._aero = random_car.aero;
-      this._chassis = random_car.chassis;
-      this._reliability = random_car.reliability;
+      Car randomCar = Car.Random();
+      this._engine = randomCar.engine;
+      this._aero = randomCar.aero;
+      this._chassis = randomCar.chassis;
+      this._reliability = randomCar.reliability;
     }
-    
   }
-  
-  Car.Random() {
-    double get_random_stat() => (100 * min(max(0.50, get_gaussian_double(0.825, 0.005)), 0.99)).round() / 100;
-    
-    this._engine = get_random_stat();
-    this._aero = Aero(get_random_stat(), get_random_stat());
-    this._chassis = get_random_stat();
-    this._reliability = get_random_stat();
-  }
+
 
   //methods
 
-  //setters
-  void set engine(double value) {
-    if(stat_is_valid(value)) this._engine = round_to_2_decimals(value);
-    else this._engine = default_stat;
-  }
-  
-  void set downforce(double value) {
-    if(stat_is_valid(value)) this._aero.downforce = round_to_2_decimals(value);
-    else this._aero.downforce = default_stat;
-  }
-  
-  void set efficiency(double value) {
-    if(stat_is_valid(value)) this._aero.efficiency = round_to_2_decimals(value);
-    else this._aero.efficiency = default_stat;
-  }
 
-  void set chassis(double value) {
-    if(stat_is_valid(value)) this._chassis = round_to_2_decimals(value);
-    else this._chassis = default_stat;
-  }
-  
-  void set reliability(double value) {
-    if(stat_is_valid(value)) this._reliability = round_to_2_decimals(value);
-    else this._reliability = default_stat;
-  }
+  //setters
+  void set engine(double value) => (isValid(value)) ? roundTo2Decimals(value) : defaultStat;
+  void set aero(Aero value)
+    => (isValid(value.downforce) && isValid(value.efficiency)) ? value : Aero(defaultStat, defaultStat);
+  void set chassis(double value) => (isValid(value)) ? roundTo2Decimals(value) : defaultStat;
+  void set reliability(double value) => (isValid(value)) ? roundTo2Decimals(value) : defaultStat;
+
 
   //getters
   double get engine => this._engine;

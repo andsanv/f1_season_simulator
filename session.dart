@@ -1,12 +1,12 @@
 import 'dart:math';
 import 'dart:io';
-import 'environment.dart';
+
+import 'car.dart';
 import 'distribution.dart';
 import 'driver.dart';
-import 'car.dart';
+import 'environment.dart';
+import 'helpers.dart';
 
-
-const double average_stat = 0.75;
 
 
 
@@ -35,22 +35,22 @@ const double average_stat = 0.75;
 
 class Position {
   //attributes
-  Driver? _driver;
-  double? _laptime;
+  late Driver _driver;
+  late double _laptime;
 
   //constructors
   Position({Driver? driver, double? laptime}) {
-    if(driver != null) this._driver = driver;
-    if(laptime != null) this._laptime = laptime;
+    this._driver = (driver != null) ? driver : Driver();
+    this._laptime = (laptime != null) ? laptime : -1;
   }
 
   //setters
-  void set driver(Driver? value) { if(value != null) this._driver = value; }
-  void set laptime(double? value) { if(value != null) this._laptime = value; }
+  void set driver(Driver value) => this._driver = value;
+  void set laptime(double value) => this._laptime = (value > 0) ? value : -1;
 
   //getters
-  Driver? get driver => this._driver;
-  double? get laptime => this._laptime;
+  Driver get driver => this._driver;
+  double get laptime => this._laptime;
 }
 
 
@@ -62,20 +62,20 @@ class SingleLapLeaderboard {
   //constructors
 
   //methods
-  void init(List<Driver> drivers_list) {
-    for(int i = 0; i < drivers_amount; i++) this._positions.add(Position(driver: drivers_list[i], laptime: 0));
+  void init(List<Driver> driversList) {
+    for(int i = 0; i < driversAmount; i++) this._positions.add(Position(driver: driversList[i], laptime: 0));
 
-    for(int i = 0; i < drivers_amount - 1; i++)
-      for(int j = i + 1; j < drivers_amount; j++) {
-        if((this._positions[i].driver?.personal_info.surname!.compareTo((this._positions[j].driver?.personal_info.surname)!))! > 0) {
+    for(int i = 0; i < driversAmount - 1; i++)
+      for(int j = i + 1; j < driversAmount; j++) {
+        if((this._positions[i].driver.personalInfo.surname.compareTo(this._positions[j].driver.personalInfo.surname)) > 0) {
           Position temp = Position(driver: this._positions[j]._driver, laptime: this._positions[j]._laptime);
           this._positions[j]._driver = this._positions[i]._driver;
           this._positions[j]._laptime = this._positions[i]._laptime;
           this._positions[i]._driver = temp.driver;
           this._positions[i]._laptime = temp.laptime;
         }
-        else if((this._positions[i].driver?.personal_info.surname!.compareTo((this._positions[j].driver?.personal_info.surname)!))! == 0) {
-          if((this._positions[i].driver?.personal_info.name!.compareTo((this._positions[j].driver?.personal_info.name)!))! > 0) {
+        else if((this._positions[i].driver.personalInfo.surname.compareTo(this._positions[j].driver.personalInfo.surname)) == 0) {
+          if((this._positions[i].driver.personalInfo.name.compareTo(this._positions[j].driver.personalInfo.name)) > 0) {
             Position temp = Position(driver: this._positions[j]._driver, laptime: this._positions[j]._laptime);
             this._positions[j]._driver = this._positions[i]._driver;
             this._positions[j]._laptime = this._positions[i]._laptime;
@@ -91,7 +91,7 @@ class SingleLapLeaderboard {
 
   void update(Position new_laptime) {
     if(this._positions[0].driver == new_laptime.driver) {
-      if(new_laptime.laptime! <= this._positions[0].laptime! || positions[0].laptime == 0) this._positions[0].laptime = new_laptime.laptime;
+      if(0 <= new_laptime.laptime && new_laptime.laptime <= this._positions[0].laptime || positions[0].laptime == -1) this._positions[0].laptime = new_laptime.laptime;
     }
     else {
       int target_bottom = 0;
@@ -102,7 +102,7 @@ class SingleLapLeaderboard {
 
       int target_top = 0;
       for(Position position in this._positions) {
-        if(position.laptime! <= new_laptime.laptime! && position.laptime != 0) target_top += 1;
+        if(0 <= new_laptime.laptime && position.laptime <= new_laptime.laptime && position.laptime != 0) target_top += 1;
         else break;
       }
 
@@ -121,12 +121,12 @@ class SingleLapLeaderboard {
     for(Position position in this._positions) {
       tabs_needed = 2;
       if(counter < 10) stdout.write("0");
-      stdout.write("$counter: ${position.driver?.personal_info.name![0]}. ");
-      stdout.write("${position.driver?.personal_info.surname}");
-      if(position.driver!.personal_info.surname!.length >= 9) tabs_needed = 1;
+      stdout.write("$counter: ${position.driver.personalInfo.name[0]}. ");
+      stdout.write("${position.driver.personalInfo.surname}");
+      if(position.driver.personalInfo.surname.length >= 9) tabs_needed = 1;
       stdout.write("\t" * tabs_needed);
-      stdout.write("${position.laptime}");
-      stdout.write("\t \t(${position.driver!.racing_stats.braking}, ${position.driver!.racing_stats.cornering})\t\t${position.driver!.personal_info.current_team!.team_name}\n");
+      stdout.write("${roundTo3Decimals(position.laptime)}");
+      stdout.write("\t \t(${position.driver.racingStats.braking}, ${position.driver.racingStats.cornering})\t\t${position.driver.personalInfo.currentTeam!.teamName}\n");
       counter++;
     }
     stdout.write("\n");
@@ -144,26 +144,28 @@ class SingleLapLeaderboard {
 
 class Qualifying {
   //attributes
-  late List<Driver> _drivers_list;
+  late List<Driver> _driversList;
   late Track _track;
   late Weather _weather;
   SingleLapLeaderboard _leaderboard = SingleLapLeaderboard();
 
 
   //constructors
-  Qualifying(List<Driver> drivers_list, Track track, Weather weather, ) {
-    this._drivers_list = drivers_list;
+  Qualifying(List<Driver> driversList, Track track, Weather weather) {
+    this._driversList = driversList;
     this._track = track;
     this._weather = weather;
-    (this._leaderboard = SingleLapLeaderboard()).init(this._drivers_list);
+    (this._leaderboard = SingleLapLeaderboard()).init(this._driversList);
   }
 
   //methods
   void start() {
-    for(Driver driver in drivers_list) {
-      this._leaderboard.update(Position(driver: driver, laptime: get_laptime(driver, this._track, this._weather)));
+    for(Driver driver in driversList) {
+      this._leaderboard.update(Position(driver: driver, laptime: get_laptime(driver,
+                                                                             this._track,
+                                                                             this._weather)));
     }
-    for(Driver driver in drivers_list) {
+    for(Driver driver in driversList) {
       this._leaderboard.update(Position(driver: driver, laptime: get_laptime(driver, this._track, this._weather)));
     }
   }
@@ -171,28 +173,27 @@ class Qualifying {
   double get_laptime(Driver driver, Track track, Weather weather) {
     //double get_random_time(double mean, double variance) => min(max(get_gaussian_double(mean, variance), mean - 0.2), mean + 0.2);
     double corners_delta = 0, straights_delta = 0, braking_delta = 0;
-    for(int i = 0; i < track.corners.slow_corners_amount!; i++) {
-      corners_delta += (average_stat - driver.racing_stats.cornering!) * 0.16 + (average_stat - driver.personal_info.current_team!.car.chassis) * 0.24 + weather.wet! * ((average_stat - driver.racing_stats.wet_pace!) / 0.25) * 0.1;
+    for(int i = 0; i < track.corners.slowCornersAmount; i++) {
+      corners_delta += (defaultStat - driver.racingStats.cornering) * 0.16 + (defaultStat - driver.personalInfo.currentTeam!.car.chassis) * 0.24 + weather.wet * ((defaultStat - driver.racingStats.pace.wet) / 0.25) * 0.1;
     }
-    for(int i = 0; i < track.corners.medium_corners_amount!; i++) {
-      corners_delta += (average_stat - driver.racing_stats.cornering!) * 0.16 + (average_stat * 2 - driver.personal_info.current_team!.car.chassis - driver.personal_info.current_team!.car.downforce) * 0.24 + weather.wet! * ((average_stat - driver.racing_stats.wet_pace!) / 0.25) * 0.1;
+    for(int i = 0; i < track.corners.mediumCornersAmount; i++) {
+      corners_delta += (defaultStat - driver.racingStats.cornering) * 0.16 + (defaultStat * 2 - driver.personalInfo.currentTeam!.car.chassis - driver.personalInfo.currentTeam!.car.downforce) * 0.24 + weather.wet * ((defaultStat - driver.racingStats.pace.wet) / 0.25) * 0.1;
     }
-    for(int i = 0; i < track.corners.slow_corners_amount!; i++) {
-      corners_delta += (average_stat - driver.racing_stats.cornering!) * 0.16 + (average_stat - driver.personal_info.current_team!.car.downforce) * 0.24 + weather.wet! * ((average_stat - driver.racing_stats.wet_pace!) / 0.25) * 0.1;;
+    for(int i = 0; i < track.corners.slowCornersAmount; i++) {
+      corners_delta += (defaultStat - driver.racingStats.cornering) * 0.16 + (defaultStat - driver.personalInfo.currentTeam!.car.downforce) * 0.24 + weather.wet * ((defaultStat - driver.racingStats.pace.wet) / 0.25) * 0.1;;
     }
-    for(int i = 0; i < track.straights_amount!; i++) {
-      straights_delta += (average_stat * 2 - driver.personal_info.current_team!.car.engine - driver.personal_info.current_team!.car.efficiency) * track.straights_length[i] * 0.8;
+    for(int i = 0; i < track.straightsAmount; i++) {
+      straights_delta += (defaultStat * 2 - driver.personalInfo.currentTeam!.car.engine - driver.personalInfo.currentTeam!.car.efficiency) * track.straightsLength[i] * 0.8;
     }
-    for(int i = 0; i < track.braking_zones_amount!; i++) {
-      braking_delta += (average_stat - driver.racing_stats.braking!) * 0.16 + (average_stat * 2 - driver.personal_info.current_team!.car.chassis - driver.personal_info.current_team!.car.downforce) * 0.24 +  weather.wet! * ((average_stat - driver.racing_stats.wet_pace!) / 0.25) * 0.1;
+    for(int i = 0; i < track.brakingZonesAmount; i++) {
+      braking_delta += (defaultStat - driver.racingStats.braking) * 0.16 + (defaultStat * 2 - driver.personalInfo.currentTeam!.car.chassis - driver.personalInfo.currentTeam!.car.downforce) * 0.24 +  weather.wet * ((defaultStat - driver.racingStats.pace.wet) / 0.25) * 0.1;
     }
 
     double track_delta = corners_delta + straights_delta + braking_delta;
-    double perfect_time = track.average_dry_time! * weather.dry! + track.average_wet_time!  * weather.wet! + track_delta;
-    double actual_time = perfect_time + (track_delta - get_gaussian_double(corners_delta + straights_delta + braking_delta, (39 - 38 * driver.racing_stats.consistency!) / 200)).abs();
+    double perfect_time = track.averageDryTime * weather.dry + track.averageWetTime  * weather.wet + track_delta;
+    double actual_time = perfect_time + (track_delta - get_gaussian_double(corners_delta + straights_delta + braking_delta, (39 - 38 * driver.racingStats.consistency) / 200)).abs();
 
-
-    return (1000 * actual_time).round() / 1000;
+    return roundTo3Decimals(actual_time);
   }
 
 

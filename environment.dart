@@ -1,22 +1,24 @@
-import 'distribution.dart';
+//import 'distribution.dart';
 import 'dart:io';
 import 'dart:math';
 
-int tracks_amount = 6;
+import 'helpers.dart';
 
+int tracksAmount = 7;
+const List<String> officialTrackNames = ["sakhir", "jeddah", "melbourne", "baku", "miami", "imola", "monza"];
 
 
 class Corners {
   //attributes
-  int? slow_corners_amount;
-  int? medium_corners_amount;
-  int? fast_corners_amount;
+  int slowCornersAmount = -1;
+  int mediumCornersAmount = -1;
+  int fastCornersAmount = -1;
 
   //constructors
-  Corners({slow_corners_amount = null, medium_corners_amount = null, fast_corners_amount = null}) {
-    this.slow_corners_amount = slow_corners_amount;
-    this.medium_corners_amount = medium_corners_amount;
-    this.fast_corners_amount = fast_corners_amount;
+  Corners({int slowCornersAmount = 0, int mediumCornersAmount = 0, int fastCornersAmount = 0}) {
+    this.slowCornersAmount = (0 <= slowCornersAmount) ? slowCornersAmount : 0;
+    this.mediumCornersAmount = (0 <= mediumCornersAmount) ? mediumCornersAmount : 0;
+    this.fastCornersAmount = (0 <= fastCornersAmount) ? fastCornersAmount : 0;
   }
 }
 
@@ -24,40 +26,43 @@ class Corners {
 
 class Track {
   //attributes
-  String? _name;
-  String? _nation;
-  double? _length;
-  double? _rain_probability;
-  double? _average_rain_intensity;
+  String _name = "";
+  String _nation = "";
+  double _length = -1;
 
-  double? _average_dry_time;
-  double? _average_wet_time;
+  double _rainProbability = -1;
+  double _averageRainIntensity = -1;
 
-  int? _straights_amount;
-  List<double> _straights_length = [];
-  int? _braking_zones_amount;
+  double _averageDryTime = -1;
+  double _averageWetTime = -1;
+
+  int _straightsAmount = -1;
+  List<double> _straightsLength = [];
+  int _brakingZonesAmount = -1;
   late Corners _corners;
 
+
   //constructors
-  Track({String? track_name}) {
-    if(track_name != null) {
-      List<String>? words;
+  Track(String trackName) {
+    if(inList(officialTrackNames, trackName.replaceAll(" ", "").toLowerCase())) {
+      List<String> words = [];
       int counter = 0;
       File fp = File("tracks.csv");
       List<String> lines = fp.readAsLinesSync();
 
       for(counter = 1; counter < lines.length; counter++) {
         words = lines[counter].split(',');
-        if(words[1].toLowerCase() == track_name.toLowerCase()) break;
+        if(words[1].toLowerCase() == trackName.toLowerCase()) break;
       }
     
-      if(counter < lines.length) {
-        init(counter);
-      }
+      if(counter < lines.length) init(counter);
     }
+
+    else init(getUniformDouble(1, tracksAmount.toDouble()).round()); 
   }
 
-  Track.Random() { init(get_uniform_double(1, tracks_amount.toDouble()).round()); }
+  Track.Random() { init(getUniformDouble(1, tracksAmount.toDouble()).round()); }
+
 
   //methods
   void init(int counter) {
@@ -67,58 +72,63 @@ class Track {
     this._name = words[1];
     this._nation = words[2];
     this._length = double.parse(words[3]);
-    this._rain_probability = double.parse(words[4]);
-    this._average_rain_intensity = double.parse(words[5]);
-    this._average_dry_time = double.parse(words[6]);
-    this._average_wet_time = (((_average_dry_time! * 1.15) * 1000).round()) / 1000;
-    this._straights_amount = int.parse(words[7]);
-    for(int i = 8; i < 8 + straights_amount!; i++)
-      this._straights_length.add(double.parse(words[i]));
-    this._braking_zones_amount = int.parse(words[8 + straights_amount!]);
-    this._corners = Corners(slow_corners_amount: int.parse(words[8 + straights_amount! + 1]),
-                            medium_corners_amount: int.parse(words[8 + straights_amount! + 2]),
-                            fast_corners_amount: int.parse(words[8 + straights_amount! + 3]));
+    this._rainProbability = double.parse(words[4]);
+    this._averageRainIntensity = double.parse(words[5]);
+    this._averageDryTime = double.parse(words[6]);
+    this._averageWetTime = (((_averageDryTime * 1.15) * 1000).round()) / 1000;
+    this._straightsAmount = int.parse(words[7]);
+    for(int i = 8; i < 8 + straightsAmount; i++)
+      this._straightsLength.add(double.parse(words[i]));
+    this._brakingZonesAmount = int.parse(words[8 + straightsAmount]);
+    this._corners = Corners(slowCornersAmount: int.parse(words[8 + straightsAmount + 1]),
+                            mediumCornersAmount: int.parse(words[8 + straightsAmount + 2]),
+                            fastCornersAmount: int.parse(words[8 + straightsAmount + 3]));
   }
 
   void print() {
     stdout.write("${this._name}, ${this._nation}\n");
-    stdout.write("- weather:\n\train probability = ${this._rain_probability}\n\train intensity = ${this._average_rain_intensity}, ");
-    stdout.write("\n\taverage dry laptime = ${this._average_dry_time}s\n\taverage wet laptime = ${this._average_wet_time}s\n");
-    stdout.write("- characteristics:\n\ttrack length = ${this._length}\n\tstraights amount = ${this._straights_amount}, lengths = ${this._straights_length}");
-    stdout.write("\n\tbraking zones amount = ${this._braking_zones_amount}\n\t");
-    stdout.write("corners: slow = ${this._corners.slow_corners_amount}, medium = ${this._corners.medium_corners_amount}, ");
-    stdout.write("fast = ${this._corners.fast_corners_amount}\n");
+    stdout.write("""- weather:\n\train probability = ${this._rainProbability}
+    \train intensity = ${this._averageRainIntensity}, """);
+    stdout.write("""\n\taverage dry laptime = ${this._averageDryTime}s
+    \taverage wet laptime = ${this._averageWetTime}s\n""");
+    stdout.write("""- characteristics:\n\ttrack length = ${this._length}
+    \tstraights amount = ${this._straightsAmount}, lengths = ${this._straightsLength}""");
+    stdout.write("\n\tbraking zones amount = ${this._brakingZonesAmount}\n\t");
+    stdout.write("corners: slow = ${this._corners.slowCornersAmount}, ");
+    stdout.write("medium = ${this._corners.mediumCornersAmount}, ");
+    stdout.write("fast = ${this._corners.fastCornersAmount}\n");
   }
 
   //setters
-  void set name(String? track_name) {
-    if(track_name == null) init(get_uniform_double(1, tracks_amount.toDouble()).round());
-    else {
-      List<String>? words;
+  void set name(String trackName) {
+    if(inList(officialTrackNames, trackName.replaceAll(" ", "").toLowerCase())) {
+      List<String> words = [];
       int counter = 0;
       File fp = File("tracks.csv");
       List<String> lines = fp.readAsLinesSync();
 
       for(counter = 1; counter < lines.length; counter++) {
         words = lines[counter].split(',');
-        if(words[1].toLowerCase() == track_name.toLowerCase()) break;
+        if(words[1].toLowerCase() == trackName.toLowerCase()) break;
       }
     
       if(counter < lines.length) init(counter);
     }
+
+    else init(getUniformDouble(1, tracksAmount.toDouble()).round()); 
   }
   
   //getters
-  String? get name => _name;
-  String? get nation => _nation;
-  double? get length => _length;
-  double? get rain_probability => _rain_probability;
-  double? get average_rain_intensity => _average_rain_intensity;
-  double? get average_dry_time => _average_dry_time;
-  double? get average_wet_time => _average_wet_time;
-  int? get straights_amount => _straights_amount;
-  List<double> get straights_length => _straights_length;
-  int? get braking_zones_amount => _braking_zones_amount;
+  String get name => _name;
+  String get nation => _nation;
+  double get length => _length;
+  double get rainProbability => _rainProbability;
+  double get averageRainIntensity => _averageRainIntensity;
+  double get averageDryTime => _averageDryTime;
+  double get averageWetTime => _averageWetTime;
+  int get straightsAmount => _straightsAmount;
+  List<double> get straightsLength => _straightsLength;
+  int get brakingZonesAmount => _brakingZonesAmount;
   Corners get corners => _corners;
 }
 
@@ -126,52 +136,50 @@ class Track {
 
 class Weather {
   //attributes
-  double? _dry;
-  double? _wet;
+  double _dry = -1;
+  double _wet = -1;
 
   //constructors
-  Weather(Track track, {double? wet}) {
-    if(wet == null) {
-      if(get_uniform_double(0, 1) < track.rain_probability!) {
-        this._wet = ((min(max(get_gaussian_double(track.average_rain_intensity!, 0.035), 0.1), 1) * 100).round()) / 100;
-        this._dry = ((1 - this._wet!) * 100).round() / 100;
+  Weather(Track track, {double wet = -1}) {
+    if(wet == -1) {
+      if(getUniformDouble(0, 1) < track.rainProbability) {
+        this._wet = roundTo2Decimals(min(max(getGaussianDouble(track.averageRainIntensity, 0.035), 0.1), 1));
+        this._dry = roundTo2Decimals(1 - this._wet);
         return;
       }
     }
     else {
       if(0 <= wet && wet <= 1) {
         this._wet = wet;
-        this._dry = ((1 - this._wet!) * 100).round() / 100;
+        this._dry = roundTo2Decimals(1 - this._wet);
         return;
       }
     }   
     this._wet = 0;
     this._dry = 1;
   }
-  
-  Weather.Null() {}
+
 
   //methods
-  void print() {
-    stdout.write("weather: dry level = ${this._dry}, wet level = ${this._wet}\n");
-  }
+  void print() { stdout.write("weather: dry level = ${this._dry}, wet level = ${this._wet}\n"); }
+
 
   //setters
   void set wet(double? value) {
     if(0 <= value! && value <= 1) {
       this._wet = value;
-      this._dry = 1 - value;
+      this._dry = roundTo2Decimals(1 - this._wet);
     }
   }
   
   void set dry(double? value) {
     if(0 <= value! && value <= 1) {
       this._dry = value;
-      this._wet = 1 - value;
+      this._wet = roundTo2Decimals(1 - this._dry);
     }
   }
 
   //getters
-  double? get wet => this._wet;
-  double? get dry => this._dry;
+  double get wet => this._wet;
+  double get dry => this._dry;
 }
