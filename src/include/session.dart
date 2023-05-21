@@ -2,7 +2,6 @@ import 'dart:math';
 import 'dart:io';
 
 import 'car.dart';
-import 'distribution.dart';
 import 'driver.dart';
 import 'environment.dart';
 import 'helpers.dart';
@@ -191,7 +190,7 @@ class Qualifying {
 
     double track_delta = corners_delta + straights_delta + braking_delta;
     double perfect_time = track.averageDryTime * weather.dry + track.averageWetTime  * weather.wet + track_delta;
-    double actual_time = perfect_time + (track_delta - get_gaussian_double(corners_delta + straights_delta + braking_delta, (39 - 38 * driver.racingStats.consistency) / 200)).abs();
+    double actual_time = perfect_time + (track_delta - getGaussianDouble(corners_delta + straights_delta + braking_delta, (39 - 38 * driver.racingStats.consistency) / 200)).abs();
 
     return roundTo3Decimals(actual_time);
   }

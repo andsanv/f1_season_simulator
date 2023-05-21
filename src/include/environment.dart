@@ -5,6 +5,7 @@ import 'dart:math';
 import 'helpers.dart';
 
 int tracksAmount = 7;
+const String officialTracksCsvPath = "../../data/tracks.csv";
 const List<String> officialTrackNames = ["sakhir", "jeddah", "melbourne", "baku", "miami", "imola", "monza"];
 
 
@@ -47,7 +48,7 @@ class Track {
     if(inList(officialTrackNames, trackName.replaceAll(" ", "").toLowerCase())) {
       List<String> words = [];
       int counter = 0;
-      File fp = File("tracks.csv");
+      File fp = File(officialTracksCsvPath);
       List<String> lines = fp.readAsLinesSync();
 
       for(counter = 1; counter < lines.length; counter++) {
@@ -66,7 +67,7 @@ class Track {
 
   //methods
   void init(int counter) {
-    File fp = File("tracks.csv");
+    File fp = File(officialTracksCsvPath);
     List<String> lines = fp.readAsLinesSync(), words = lines[counter].split(',');
 
     this._name = words[1];
@@ -104,7 +105,7 @@ class Track {
     if(inList(officialTrackNames, trackName.replaceAll(" ", "").toLowerCase())) {
       List<String> words = [];
       int counter = 0;
-      File fp = File("tracks.csv");
+      File fp = File(officialTracksCsvPath);
       List<String> lines = fp.readAsLinesSync();
 
       for(counter = 1; counter < lines.length; counter++) {

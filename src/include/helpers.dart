@@ -6,7 +6,7 @@ import 'package:sample_statistics/sample_statistics.dart';
 const double defaultStat = 0.75;
 
 //paths
-const String officialCarsCsvPath = "cars.csv";
+const String officialCarsCsvPath = "../../data/cars.csv";
 
 
 
